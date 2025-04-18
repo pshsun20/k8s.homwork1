@@ -1,0 +1,23 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: shop-scaledobject
+  namespace: aws9c
+spec:
+  scaleTargetRef:
+    name: aws9-deploy-shop
+  minReplicaCount: 1
+  maxReplicaCount: 10
+  pollingInterval: 30      # (선택) 30초마다 트리거 평가
+  cooldownPeriod: 300      # (선택) 스케일 후 5분간 다시 평가 안 함
+  triggers:
+  - type: cron
+    metadata:
+      timezone: Asia/Seoul
+      start: "0 9 * * *"       # 매일 09:00
+      end:   "0 18 * * *"      # 매일 18:00
+      desiredReplicas: "3"     # 이 시간에는 3개로 고정
+  - type: cpu
+    metadata:
+      type: Utilization
+      value: "60"              # CPU 평균 60% 초과 시 스케일업
